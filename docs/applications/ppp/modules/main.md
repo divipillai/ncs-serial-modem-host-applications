@@ -1,6 +1,6 @@
 # Main module
 
-The Main module implements the business logic of the application. It is the only module that knows about the others: it connects the cloud session to network availability, runs the periodic cloud synchronization, forwards location results to the cloud, and coordinates the reboot at the end of a firmware update.
+The Main module implements the business logic of the application. It is the only module that knows about the others: it connects the cloud session to network availability, runs the periodic cloud synchronization, forwards location results to the cloud, and coordinates the reboot at the end of a firmware over-the-air (FOTA) update.
 
 Unlike the other modules, the Main module is not in the `modules` folder and does not run in a thread of its own. It runs in the `main()` thread, and it is the module that sets up the hardware watchdog that all other modules add their tasks to.
 
@@ -41,7 +41,7 @@ The following states are used by the module:
     - **STATE_CLOUD_CONNECTED:** The cloud connection is up. The entry function schedules the periodic synchronization and transitions straight to `STATE_SYNC_DEMO`, so connecting always synchronizes once without waiting out a period. The exit function cancels the periodic synchronization. `STATE_SYNC_IDLE` is the declared initial substate, but the entry function overrides it.
 
         - **STATE_SYNC_IDLE:** Waiting for the next periodic synchronization trigger. Its entry function reschedules the timer.
-        - **STATE_SYNCING:** A synchronization is running. Its entry function sets the green blinking LED once, so the sync steps below do not touch the LED. `STATE_SYNC_DEMO` is its initial substate.
+        - **STATE_SYNCING:** A synchronization is running. Its entry function sets the green blinking LED once, so the individual sync steps do not touch the LED. `STATE_SYNC_DEMO` is its initial substate.
 
             - **STATE_SYNC_DEMO:** Sending the demo cloud payload.
             - **STATE_SYNC_LOCATION:** Scanning for Wi-Fi access points and resolving location. Only present with the location overlay.
@@ -80,7 +80,7 @@ Because a firmware download and the reboot that follows must not be interrupted 
 
 The Main module defines the private channel `main_priv_chan` and publishes requests on the other modules' channels. It has no public channel and no output messages of its own.
 
-## Configurations
+## Configuration
 
 - **CONFIG_APP_MAIN_SYNC_INTERVAL_SECONDS**: Sets the interval between cloud synchronizations while the cloud connection is up.
 
